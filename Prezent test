@@ -1,0 +1,94 @@
+-- UILibrary.lua
+-- Created by @uniquadev | Converted and cleaned by GPT-5
+-- Recreates the exact layout shown in your GUI screenshot
+
+local UILibrary = {}
+UILibrary.__index = UILibrary
+
+function UILibrary.new(name)
+	local self = setmetatable({}, UILibrary)
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = name or "TigerXUI"
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.ResetOnSpawn = false
+	gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+	self.Gui = gui
+	return self
+end
+
+function UILibrary:CreateWindow(title)
+	local frame = Instance.new("Frame")
+	frame.Name = title or "MainFrame"
+	frame.Size = UDim2.new(0.34, 0, 0.67, 0)
+	frame.Position = UDim2.new(0.33, 0, 0.07, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	frame.BorderSizePixel = 0
+	frame.Parent = self.Gui
+
+	local corner = Instance.new("UICorner", frame)
+	corner.CornerRadius = UDim.new(0, 12)
+
+	-- Title
+	local titleLabel = Instance.new("TextLabel", frame)
+	titleLabel.Text = title or "Tiger X - BeyondLand"
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
+	titleLabel.Position = UDim2.new(0, 0, 0.02, 0)
+	titleLabel.Font = Enum.Font.GothamBold
+	titleLabel.TextColor3 = Color3.fromRGB(121, 227, 39)
+	titleLabel.TextScaled = true
+
+	-- Close Button
+	local closeBtn = Instance.new("TextButton", frame)
+	closeBtn.Text = "X"
+	closeBtn.BackgroundTransparency = 1
+	closeBtn.TextColor3 = Color3.fromRGB(121, 227, 39)
+	closeBtn.Size = UDim2.new(0.05, 0, 0.07, 0)
+	closeBtn.Position = UDim2.new(0.92, 0, 0.03, 0)
+	closeBtn.Font = Enum.Font.GothamBold
+	closeBtn.TextScaled = true
+	closeBtn.MouseButton1Click:Connect(function()
+		frame.Visible = false
+	end)
+
+	self.Frame = frame
+	return self
+end
+
+function UILibrary:AddSection(text, position)
+	local label = Instance.new("TextLabel", self.Frame)
+	label.Text = text
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(121, 227, 39)
+	label.Font = Enum.Font.GothamSemibold
+	label.TextScaled = true
+	label.Size = UDim2.new(1, 0, 0.1, 0)
+	label.Position = position
+end
+
+function UILibrary:AddButton(text, position, callback)
+	local button = Instance.new("TextButton", self.Frame)
+	button.Text = text
+	button.Size = UDim2.new(0.28, 0, 0.14, 0)
+	button.Position = position
+	button.BackgroundColor3 = Color3.fromRGB(121, 227, 39)
+	button.TextColor3 = Color3.fromRGB(0, 0, 0)
+	button.Font = Enum.Font.GothamSemibold
+	button.TextScaled = true
+	button.BorderSizePixel = 0
+
+	local corner = Instance.new("UICorner", button)
+	corner.CornerRadius = UDim.new(0, 8)
+
+	button.MouseButton1Click:Connect(function()
+		if typeof(callback) == "function" then
+			callback()
+		end
+	end)
+
+	return button
+end
+
+return UILibrary
