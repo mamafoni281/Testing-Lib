@@ -1,0 +1,88 @@
+-- // FileName: UILibrary.lua
+-- // Made by @uniquadev (converted by GPT-5)
+
+local UILibrary = {}
+UILibrary.__index = UILibrary
+
+-- Create ScreenGui (root)
+function UILibrary.new(name)
+    local self = setmetatable({}, UILibrary)
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = name or "UILibrary"
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.ResetOnSpawn = false
+    gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+    self.Gui = gui
+    return self
+end
+
+-- Create a window (Frame)
+function UILibrary:CreateWindow(title)
+    local frame = Instance.new("Frame")
+    frame.Name = title or "Window"
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(0.35, 0, 0.6, 0)
+    frame.Position = UDim2.new(0.33, 0, 0.1, 0)
+    frame.Parent = self.Gui
+
+    local corner = Instance.new("UICorner", frame)
+    corner.CornerRadius = UDim.new(0, 10)
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Text = title or "UI Window"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.TextColor3 = Color3.fromRGB(121, 227, 39)
+    titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextScaled = true
+    titleLabel.Parent = frame
+
+    self.Frame = frame
+    return self
+end
+
+-- Add Button
+function UILibrary:AddButton(text, callback)
+    local button = Instance.new("TextButton")
+    button.Text = text
+    button.Size = UDim2.new(0.8, 0, 0.12, 0)
+    button.Position = UDim2.new(0.1, 0, #self.Frame:GetChildren() * 0.15, 0)
+    button.BackgroundColor3 = Color3.fromRGB(121, 227, 39)
+    button.BorderSizePixel = 0
+    button.TextColor3 = Color3.fromRGB(0, 0, 0)
+    button.Font = Enum.Font.GothamSemibold
+    button.TextScaled = true
+    button.Parent = self.Frame
+
+    Instance.new("UICorner", button)
+
+    button.MouseButton1Click:Connect(function()
+        if typeof(callback) == "function" then
+            callback()
+        end
+    end)
+end
+
+-- Add Label
+function UILibrary:AddLabel(text)
+    local label = Instance.new("TextLabel")
+    label.Text = text
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(121, 227, 39)
+    label.Size = UDim2.new(1, 0, 0.1, 0)
+    label.Font = Enum.Font.Gotham
+    label.TextScaled = true
+    label.Parent = self.Frame
+end
+
+-- Hide UI
+function UILibrary:Close()
+    if self.Frame then
+        self.Frame.Visible = false
+    end
+end
+
+return UILibrary
