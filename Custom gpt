@@ -1,297 +1,107 @@
---// Kavo-Style UI Library (Full) by ChatGPT, 2025
---// Open Source & Editable
+-- UILibrary.lua
+-- Created by @uniquadev | Clean auto-layout version by GPT-5
+-- Automatically places buttons & sections (no UDim2 positions required)
 
-local Library = {}
-Library.theme = {
-    Background = Color3.fromRGB(25, 25, 30),
-    Accent = Color3.fromRGB(0, 170, 255),
-    Text = Color3.fromRGB(230, 230, 230),
-    Stroke = Color3.fromRGB(10, 10, 15),
-    Corner = UDim.new(0, 10)
-}
+local UILibrary = {}
+UILibrary.__index = UILibrary
 
-local TweenService = game:GetService("TweenService")
-local Player = game.Players.LocalPlayer
-local GUI = Instance.new("ScreenGui", Player:WaitForChild("PlayerGui"))
-GUI.Name = "KavoLikeLib"
-GUI.ResetOnSpawn = false
+function UILibrary.new(name)
+	local self = setmetatable({}, UILibrary)
 
-local function make(class, props)
-    local obj = Instance.new(class)
-    for i, v in pairs(props) do obj[i] = v end
-    return obj
+	local gui = Instance.new("ScreenGui")
+	gui.Name = name or "TigerXUI"
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	gui.ResetOnSpawn = false
+	gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+	self.Gui = gui
+	return self
 end
 
-local function corner(frame)
-    local c = Instance.new("UICorner")
-    c.CornerRadius = Library.theme.Corner
-    c.Parent = frame
+function UILibrary:CreateWindow(title)
+	local frame = Instance.new("Frame")
+	frame.Name = title or "MainFrame"
+	frame.Size = UDim2.new(0.34, 0, 0.67, 0)
+	frame.Position = UDim2.new(0.33, 0, 0.15, 0)
+	frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	frame.BorderSizePixel = 0
+	frame.Parent = self.Gui
+
+	local corner = Instance.new("UICorner", frame)
+	corner.CornerRadius = UDim.new(0, 12)
+
+	-- Title
+	local titleLabel = Instance.new("TextLabel", frame)
+	titleLabel.Text = title or "Tiger X - BeyondLand"
+	titleLabel.BackgroundTransparency = 1
+	titleLabel.Size = UDim2.new(1, 0, 0.12, 0)
+	titleLabel.Font = Enum.Font.GothamBold
+	titleLabel.TextColor3 = Color3.fromRGB(121, 227, 39)
+	titleLabel.TextScaled = true
+
+	-- Close Button
+	local closeBtn = Instance.new("TextButton", frame)
+	closeBtn.Text = "X"
+	closeBtn.BackgroundTransparency = 1
+	closeBtn.TextColor3 = Color3.fromRGB(121, 227, 39)
+	closeBtn.Size = UDim2.new(0.08, 0, 0.1, 0)
+	closeBtn.Position = UDim2.new(0.92, 0, 0.02, 0)
+	closeBtn.Font = Enum.Font.GothamBold
+	closeBtn.TextScaled = true
+	closeBtn.MouseButton1Click:Connect(function()
+		frame.Visible = false
+	end)
+
+	-- Container for buttons & labels
+	local container = Instance.new("Frame", frame)
+	container.BackgroundTransparency = 1
+	container.Size = UDim2.new(1, 0, 0.85, 0)
+	container.Position = UDim2.new(0, 0, 0.12, 0)
+
+	local layout = Instance.new("UIListLayout", container)
+	layout.Padding = UDim.new(0, 10)
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+	local padding = Instance.new("UIPadding", container)
+	padding.PaddingTop = UDim.new(0, 10)
+
+	self.Frame = frame
+	self.Container = container
+
+	return self
 end
 
----------------------------------------------------------------------
--- WINDOW
----------------------------------------------------------------------
-function Library:CreateWindow(title)
-    local self = {}
-
-    local main = make("Frame", {
-        Parent = GUI,
-        Size = UDim2.new(0, 600, 0, 400),
-        Position = UDim2.new(0.5, -300, 0.5, -200),
-        BackgroundColor3 = Library.theme.Background,
-    })
-    corner(main)
-    make("UIStroke", {Parent = main, Color = Library.theme.Stroke, Thickness = 1})
-
-    local header = make("TextLabel", {
-        Parent = main,
-        Size = UDim2.new(1, 0, 0, 40),
-        BackgroundTransparency = 1,
-        Text = title or "Window",
-        TextColor3 = Library.theme.Text,
-        Font = Enum.Font.GothamBold,
-        TextSize = 20,
-    })
-
-    local tabHolder = make("Frame", {
-        Parent = main,
-        Size = UDim2.new(0, 140, 1, -40),
-        Position = UDim2.new(0, 0, 0, 40),
-        BackgroundColor3 = Color3.fromRGB(20, 20, 25),
-    })
-    corner(tabHolder)
-    make("UIListLayout", {Parent = tabHolder, Padding = UDim.new(0, 4)})
-
-    local pageHolder = make("Frame", {
-        Parent = main,
-        Size = UDim2.new(1, -150, 1, -40),
-        Position = UDim2.new(0, 150, 0, 40),
-        BackgroundTransparency = 1,
-    })
-
-    local tabs = {}
-
-    ---------------------------------------------------------------------
-    -- TAB
-    ---------------------------------------------------------------------
-    function self:CreateTab(name)
-        local tab = {}
-        local tabButton = make("TextButton", {
-            Parent = tabHolder,
-            Size = UDim2.new(1, -10, 0, 30),
-            BackgroundColor3 = Color3.fromRGB(30, 30, 35),
-            Text = name,
-            TextColor3 = Library.theme.Text,
-            Font = Enum.Font.Gotham,
-            TextSize = 16,
-        })
-        corner(tabButton)
-
-        local page = make("ScrollingFrame", {
-            Parent = pageHolder,
-            Size = UDim2.new(1, 0, 1, 0),
-            CanvasSize = UDim2.new(0, 0, 0, 0),
-            BackgroundTransparency = 1,
-            ScrollBarThickness = 4,
-            Visible = false,
-        })
-        make("UIListLayout", {Parent = page, Padding = UDim.new(0, 8)})
-
-        tabButton.MouseButton1Click:Connect(function()
-            for _, t in pairs(tabs) do t.page.Visible = false end
-            page.Visible = true
-            TweenService:Create(tabButton, TweenInfo.new(0.15), {BackgroundColor3 = Library.theme.Accent}):Play()
-            task.wait(0.15)
-            TweenService:Create(tabButton, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(30,30,35)}):Play()
-        end)
-
-        -----------------------------------------------------------------
-        -- SECTION
-        -----------------------------------------------------------------
-        function tab:CreateSection(label)
-            local section = {}
-            local sectionFrame = make("Frame", {
-                Parent = page,
-                Size = UDim2.new(1, -10, 0, 40),
-                BackgroundColor3 = Color3.fromRGB(32, 32, 40),
-            })
-            corner(sectionFrame)
-
-            make("TextLabel", {
-                Parent = sectionFrame,
-                BackgroundTransparency = 1,
-                Text = label or "Section",
-                TextColor3 = Library.theme.Text,
-                Font = Enum.Font.GothamBold,
-                TextSize = 16,
-                Position = UDim2.new(0, 8, 0, 8),
-                TextXAlignment = Enum.TextXAlignment.Left,
-            })
-
-            local content = make("Frame", {
-                Parent = sectionFrame,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, -10, 0, 120),
-                Position = UDim2.new(0, 5, 0, 35),
-            })
-            make("UIListLayout", {Parent = content, Padding = UDim.new(0, 6)})
-
-            -----------------------------------------------------------------
-            -- BUTTON
-            -----------------------------------------------------------------
-            function section:CreateButton(text, callback)
-                local b = make("TextButton", {
-                    Parent = content,
-                    Size = UDim2.new(1, 0, 0, 32),
-                    BackgroundColor3 = Color3.fromRGB(40, 40, 48),
-                    Text = text,
-                    TextColor3 = Library.theme.Text,
-                    Font = Enum.Font.Gotham,
-                    TextSize = 14,
-                })
-                corner(b)
-                b.MouseButton1Click:Connect(function()
-                    TweenService:Create(b, TweenInfo.new(0.1), {BackgroundColor3 = Library.theme.Accent}):Play()
-                    task.wait(0.1)
-                    TweenService:Create(b, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 40, 48)}):Play()
-                    pcall(callback)
-                end)
-            end
-
-            -----------------------------------------------------------------
-            -- TOGGLE
-            -----------------------------------------------------------------
-            function section:CreateToggle(text, default, callback)
-                local toggle = default or false
-                local holder = make("Frame", {
-                    Parent = content,
-                    Size = UDim2.new(1, 0, 0, 32),
-                    BackgroundTransparency = 1,
-                })
-                local label = make("TextLabel", {
-                    Parent = holder,
-                    BackgroundTransparency = 1,
-                    Text = text,
-                    TextColor3 = Library.theme.Text,
-                    Font = Enum.Font.Gotham,
-                    TextSize = 14,
-                    Position = UDim2.new(0, 0, 0, 4),
-                    Size = UDim2.new(1, -40, 1, 0),
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                })
-
-                local switch = make("Frame", {
-                    Parent = holder,
-                    AnchorPoint = Vector2.new(1, 0.5),
-                    Position = UDim2.new(1, -10, 0.5, 0),
-                    Size = UDim2.new(0, 34, 0, 18),
-                    BackgroundColor3 = Color3.fromRGB(45, 45, 50),
-                })
-                corner(switch)
-
-                local knob = make("Frame", {
-                    Parent = switch,
-                    Size = UDim2.new(0, 16, 0, 16),
-                    Position = UDim2.new(0, 2, 0, 1),
-                    BackgroundColor3 = Color3.fromRGB(160, 160, 160),
-                })
-                corner(knob)
-
-                local function update()
-                    if toggle then
-                        TweenService:Create(switch, TweenInfo.new(0.15), {BackgroundColor3 = Library.theme.Accent}):Play()
-                        TweenService:Create(knob, TweenInfo.new(0.15), {Position = UDim2.new(1, -18, 0, 1)}):Play()
-                    else
-                        TweenService:Create(switch, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(45,45,50)}):Play()
-                        TweenService:Create(knob, TweenInfo.new(0.15), {Position = UDim2.new(0, 2, 0, 1)}):Play()
-                    end
-                end
-
-                switch.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        toggle = not toggle
-                        update()
-                        pcall(callback, toggle)
-                    end
-                end)
-
-                update()
-            end
-
-            -----------------------------------------------------------------
-            -- DROPDOWN
-            -----------------------------------------------------------------
-            function section:CreateDropdown(name, list, default, callback)
-                local current = default or list[1]
-                local open = false
-
-                local frame = make("Frame", {
-                    Parent = content,
-                    Size = UDim2.new(1, 0, 0, 34),
-                    BackgroundColor3 = Color3.fromRGB(40, 40, 48),
-                })
-                corner(frame)
-
-                local label = make("TextLabel", {
-                    Parent = frame,
-                    Text = name .. ": " .. current,
-                    Size = UDim2.new(1, -10, 1, 0),
-                    Position = UDim2.new(0, 5, 0, 0),
-                    BackgroundTransparency = 1,
-                    TextColor3 = Library.theme.Text,
-                    Font = Enum.Font.Gotham,
-                    TextSize = 14,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                })
-
-                local dropFrame = make("Frame", {
-                    Parent = frame,
-                    Size = UDim2.new(1, 0, 0, 0),
-                    Position = UDim2.new(0, 0, 1, 0),
-                    BackgroundColor3 = Color3.fromRGB(35, 35, 42),
-                    ClipsDescendants = true,
-                })
-                corner(dropFrame)
-                make("UIListLayout", {Parent = dropFrame, Padding = UDim.new(0, 4)})
-
-                for _, v in ipairs(list) do
-                    local opt = make("TextButton", {
-                        Parent = dropFrame,
-                        Size = UDim2.new(1, -4, 0, 28),
-                        BackgroundColor3 = Color3.fromRGB(45, 45, 55),
-                        Text = v,
-                        TextColor3 = Library.theme.Text,
-                        Font = Enum.Font.Gotham,
-                        TextSize = 14,
-                    })
-                    corner(opt)
-                    opt.MouseButton1Click:Connect(function()
-                        current = v
-                        label.Text = name .. ": " .. v
-                        TweenService:Create(dropFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 0)}):Play()
-                        open = false
-                        pcall(callback, v)
-                    end)
-                end
-
-                frame.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        open = not open
-                        local size = open and #list * 30 or 0
-                        TweenService:Create(dropFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, size)}):Play()
-                    end
-                end)
-            end
-
-            return section
-        end
-
-        page.Visible = (#tabs == 0)
-        table.insert(tabs, {page = page})
-        return tab
-    end
-
-    return self
+function UILibrary:AddSection(text)
+	local label = Instance.new("TextLabel", self.Container)
+	label.Text = text
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(121, 227, 39)
+	label.Font = Enum.Font.GothamSemibold
+	label.TextScaled = true
+	label.Size = UDim2.new(0.9, 0, 0.08, 0)
 end
 
-return Library
+function UILibrary:AddButton(text, callback)
+	local button = Instance.new("TextButton", self.Container)
+	button.Text = text
+	button.Size = UDim2.new(0.9, 0, 0.12, 0)
+	button.BackgroundColor3 = Color3.fromRGB(121, 227, 39)
+	button.TextColor3 = Color3.fromRGB(0, 0, 0)
+	button.Font = Enum.Font.GothamSemibold
+	button.TextScaled = true
+	button.BorderSizePixel = 0
+
+	local corner = Instance.new("UICorner", button)
+	corner.CornerRadius = UDim.new(0, 8)
+
+	button.MouseButton1Click:Connect(function()
+		if typeof(callback) == "function" then
+			callback()
+		end
+	end)
+
+	return button
+end
+
+return UILibrary
