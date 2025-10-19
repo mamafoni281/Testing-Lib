@@ -1,0 +1,74 @@
+-- UILibrary.lua
+-- Roblox UI Library preserving original positions, sizes, text
+
+local UILibrary = {}
+
+local Players = game:GetService("Players")
+local CollectionService = game:GetService("CollectionService")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create main ScreenGui
+function UILibrary:CreateScreenGui(name)
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = name or "ScreenGui"
+    ScreenGui.Parent = PlayerGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    CollectionService:AddTag(ScreenGui, "main")
+    return ScreenGui
+end
+
+-- Create frame
+function UILibrary:CreateFrame(parent, properties)
+    local Frame = Instance.new("Frame")
+    Frame.Parent = parent
+    Frame.Size = properties.Size
+    Frame.Position = properties.Position
+    Frame.BackgroundColor3 = properties.BackgroundColor3 or Color3.fromRGB(0,0,0)
+    Frame.BorderSizePixel = 0
+    if properties.Corner then
+        local UICorner = Instance.new("UICorner", Frame)
+        UICorner.CornerRadius = properties.Corner
+    end
+    if properties.AspectRatio then
+        local UIAspect = Instance.new("UIAspectRatioConstraint", Frame)
+        UIAspect.AspectRatio = properties.AspectRatio
+    end
+    return Frame
+end
+
+-- Create button
+function UILibrary:CreateButton(parent, properties)
+    local Button = Instance.new("TextButton")
+    Button.Parent = parent
+    Button.Name = properties.Name or "Button"
+    Button.Text = properties.Text or ""
+    Button.Size = properties.Size
+    Button.Position = properties.Position
+    Button.BackgroundColor3 = properties.BackgroundColor3 or Color3.fromRGB(121,227,39)
+    Button.BorderSizePixel = 0
+    if properties.Corner then
+        local UICorner = Instance.new("UICorner", Button)
+        UICorner.CornerRadius = properties.Corner
+    end
+    if properties.OnClick then
+        Button.MouseButton1Click:Connect(properties.OnClick)
+    end
+    return Button
+end
+
+-- Create label
+function UILibrary:CreateLabel(parent, properties)
+    local Label = Instance.new("TextLabel")
+    Label.Parent = parent
+    Label.Name = properties.Name or "Label"
+    Label.Text = properties.Text or ""
+    Label.Size = properties.Size
+    Label.Position = properties.Position
+    Label.BackgroundTransparency = properties.BackgroundTransparency or 1
+    Label.BackgroundColor3 = properties.BackgroundColor3 or Color3.fromRGB(255,255,255)
+    Label.TextColor3 = properties.TextColor3 or Color3.fromRGB(121,227,39)
+    Label.BorderSizePixel = 0
+    return Label
+end
+
+return UILibrary
